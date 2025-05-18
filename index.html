@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Interactive Vulnerability Report Generator</title>
+  <title>Interactive Vulnerability Report Generator (Powered by GitHub Copilot)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -34,11 +34,12 @@
 </head>
 <body>
   <h1>Interactive Vulnerability Report Generator</h1>
+  <p>Powered by GitHub Copilot</p>
   
   <h2>Chat with Assistant</h2>
   <div class="chat-container" id="chatContainer"></div>
   <form id="chatForm">
-    <input type="text" id="chatInput" placeholder="Ask the assistant..." required style="width:80%;">
+    <input type="text" id="chatInput" placeholder="Ask the advanced assistant..." required style="width:80%;">
     <button type="submit">Send</button>
   </form>
   
@@ -50,7 +51,7 @@
     <label for="assetType">Asset Type:</label>
     <select id="assetType">
       <option value="Smart Contract">Smart Contract</option>
-      <option value="Websites and Applications">Websites and Applications</option>
+      <option value="Websites and Applications" selected>Websites and Applications</option>
     </select><br><br>
     
     <label for="impact">Impact:</label>
@@ -75,7 +76,7 @@
     <input type="text" id="references"><br><br>
     
     <label for="poc">Proof of Concept:</label>
-    <textarea id="poc" rows="4" cols="50" placeholder="Enter your PoC code or description"></textarea><br><br>
+    <textarea id="poc" rows="4" cols="50" placeholder="Enter your PoC code or detailed description"></textarea><br><br>
     
     <button type="submit">Generate Report</button>
   </form>
@@ -85,7 +86,7 @@
   
   <script src="reportGenerator.js"></script>
   <script>
-    // Chat functionality: simulate ChatGPT assistant response
+    // Chat functionality: simulate advanced GitHub Copilot-powered assistant response
     const chatContainer = document.getElementById('chatContainer');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
@@ -95,9 +96,9 @@
       const userMessage = chatInput.value;
       addChatMessage(userMessage, 'chat-user');
       chatInput.value = '';
-      // Simulate assistant response after 1 second
+      // Simulate an advanced assistant reply with a short delay
       setTimeout(() => {
-        const assistantMessage = generateAssistantResponse(userMessage);
+        const assistantMessage = generateAdvancedAssistantResponse(userMessage);
         addChatMessage(assistantMessage, 'chat-assistant');
       }, 1000);
     });
@@ -110,16 +111,17 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
     
-    // This function simulates a ChatGPT response based on user message.
-    function generateAssistantResponse(userMessage) {
-      if (userMessage.toLowerCase().includes("report")) {
-        return "Sure, I can help generate a detailed vulnerability report, including PoC and descriptions. Please fill out the form below.";
-      } else if (userMessage.toLowerCase().includes("poc")) {
-        return "For a PoC, you might demonstrate injection via a simple script insertion, e.g., <script>alert('XSS');</script>.";
-      } else if (userMessage.toLowerCase().includes("description")) {
-        return "A good vulnerability report includes a brief intro, vulnerability details, impact specifics, references, and a PoC section.";
+    // Advanced assistant simulation function powered by GitHub Copilot ideas.
+    function generateAdvancedAssistantResponse(message) {
+      const lowerMsg = message.toLowerCase();
+      if (lowerMsg.includes("advanced") && lowerMsg.includes("report")) {
+        return "To generate an advanced vulnerability report, please fill out the form below with detailed information about the asset, impact, severity, and any references or PoC details.";
+      } else if (lowerMsg.includes("poc")) {
+        return "For an advanced PoC, consider using dynamic demonstration scripts or controlled examples that clearly show how the vulnerability can be exploited.";
+      } else if (lowerMsg.includes("how") || lowerMsg.includes("explain")) {
+        return "Our system collects asset data, allows for detailed impact and severity selection, and then auto-generates a comprehensive vulnerability report complete with PoC, vulnerability specifics, impact analysis, and references.";
       } else {
-        return "I'm here to help with generating security reports. Feel free to ask about report structure, PoC details, or anything related.";
+        return "I'm here to help with your advanced vulnerability analysis and report generation needs. Could you please clarify your request?";
       }
     }
     
