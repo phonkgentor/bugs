@@ -1,175 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Super Advanced Bug & Vulnerability Finder</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.css" integrity="sha512-Q9ujF2k6Ow3Jq8Ts/eG0SZypk9+vK1Amv9T0Q5fY6s9pCIlcu3wujA0b86k/qvF+O4DJWZmk5tDNNI4MOI1cOw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f3f3f3;
-      }
-      header {
-        background-color: #222;
-        color: #fff;
-        text-align: center;
-        padding: 20px;
-      }
-      nav {
-        display: flex;
-        justify-content: center;
-        background-color: #444;
-      }
-      nav button {
-        flex: 1;
-        padding: 15px;
-        background: none;
-        border: none;
-        color: #fff;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      nav button:hover, nav button.active {
-        background-color: #666;
-      }
-      .container {
-        max-width: 1000px;
-        margin: 20px auto;
-        background: #fff;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      .hidden {
-        display: none;
-      }
-      label {
-        display: block;
-        margin: 10px 0 5px;
-        font-weight: bold;
-      }
-      input[type="text"],
-      select,
-      textarea {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-      }
-      button.primary {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      button.primary:hover {
-        background-color: #0056b3;
-      }
-      .result, pre {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 4px;
-        margin-top: 10px;
-        white-space: pre-wrap;
-        font-family: monospace;
-      }
-      .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #007bff;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 20px auto;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      /* Dashboard styles */
-      #chartContainer {
-        max-width: 800px;
-        margin: 20px auto;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>Super Advanced Bug & Vulnerability Finder</h1>
-      <p>Integrated Static Analysis, Dynamic Dashboard, and Detailed Report Generator</p>
-    </header>
-    <nav>
-      <button id="tabAnalysis" class="active">Static Analysis</button>
-      <button id="tabReport">Vulnerability Report</button>
-      <button id="tabDashboard">Dashboard</button>
-    </nav>
-
-    <div class="container" id="analysisSection">
-      <h2>Static Analysis</h2>
-      <form id="analysisForm">
-        <label for="targetInput">Target Repository / Project (e.g. ens):</label>
-        <input type="text" id="targetInput" placeholder="Enter target name or repository URL" required />
-        <button type="submit" class="primary">Run Analysis</button>
-      </form>
-      <div id="analysisResult" class="result"></div>
-    </div>
-
-    <div class="container hidden" id="reportSection">
-      <h2>Generate Vulnerability Report</h2>
-      <form id="reportForm">
-        <label for="assetUrl">Asset URL:</label>
-        <input type="text" id="assetUrl" placeholder="https://app.ens.domains" required />
-
-        <label for="assetType">Asset Type:</label>
-        <select id="assetType">
-          <option value="Smart Contract">Smart Contract</option>
-          <option value="Website/Application" selected>Website/Application</option>
-        </select>
-
-        <label for="impact">Impact:</label>
-        <select id="impact">
-          <option value="Reentrancy & Unchecked Calls">Reentrancy & Unchecked Calls</option>
-          <option value="Integer Overflows/Underflows">Integer Overflows/Underflows</option>
-          <option value="Injection Attacks">Injection Attacks</option>
-          <option value="Logic Flaws">Logic Flaws</option>
-        </select>
-
-        <label for="severity">Severity:</label>
-        <select id="severity">
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-
-        <label for="references">References (comma separated URLs):</label>
-        <input type="text" id="references" placeholder="https://github.com/ensdomains/ens-app-v3, ..." />
-
-        <label for="poc">Proof of Concept:</label>
-        <textarea id="poc" rows="4" placeholder="Enter PoC details here..."></textarea>
-
-        <button type="submit" class="primary">Generate Report</button>
-      </form>
-      <h3>Generated Vulnerability Report</h3>
-      <pre id="reportOutput"></pre>
-    </div>
-
-    <div class="container hidden" id="dashboardSection">
-      <h2>Analysis Dashboard</h2>
-      <p>This dashboard simulates advanced dynamic analysis with real-time updates, visual charts, and error logs.</p>
-      <button id="startDashboard" class="primary">Start Real-Time Simulation</button>
-      <div id="dashboardOutput" class="result"></div>
-      <div id="chartContainer">
-        <canvas id="analysisChart"></canvas>
-      </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-otri2hqVREBe0sW7eFBgVN/qPLIHPWf54KqISOhQv+cMLLuWWIta2Aq+k5Xf2EGjMDFXs0jtzF+E8LOj3E9BOg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="app.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Anime Episode Auto Editor</title>
+</head>
+<body>
+  <h1>Automatic Anime Episode Editor</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <label for="video">Choose anime episode video:</label>
+    <input type="file" id="video" name="video" accept="video/*" required>
+    <br><br>
+    <label for="platform">Select platform:</label>
+    <select id="platform" name="platform" required>
+      <option value="youtube">YouTube (3 minutes)</option>
+      <option value="instagram">Instagram (1 minute)</option>
+    </select>
+    <br><br>
+    <button type="submit">Upload and Edit</button>
+  </form>
+</body>
 </html>
