@@ -3,199 +3,173 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Interactive Bug & Vulnerability Finder</title>
+    <title>Super Advanced Bug & Vulnerability Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.css" integrity="sha512-Q9ujF2k6Ow3Jq8Ts/eG0SZypk9+vK1Amv9T0Q5fY6s9pCIlcu3wujA0b86k/qvF+O4DJWZmk5tDNNI4MOI1cOw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
       body {
         font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 40px auto;
+        margin: 0;
+        padding: 0;
+        background-color: #f3f3f3;
+      }
+      header {
+        background-color: #222;
+        color: #fff;
+        text-align: center;
         padding: 20px;
       }
+      nav {
+        display: flex;
+        justify-content: center;
+        background-color: #444;
+      }
+      nav button {
+        flex: 1;
+        padding: 15px;
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      nav button:hover, nav button.active {
+        background-color: #666;
+      }
       .container {
-        margin-bottom: 40px;
+        max-width: 1000px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
-      .chat-container,
-      .analysis-container {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 20px;
-        height: 250px;
-        overflow-y: auto;
-      }
-      .chat-message,
-      .analysis-message {
-        margin: 5px 0;
-        padding: 5px;
-      }
-      .chat-user {
-        text-align: right;
-        color: blue;
-      }
-      .chat-assistant {
-        text-align: left;
-        color: green;
+      .hidden {
+        display: none;
       }
       label {
         display: block;
         margin: 10px 0 5px;
+        font-weight: bold;
       }
       input[type="text"],
       select,
       textarea {
         width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
       }
-      button {
+      button.primary {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
         padding: 10px 20px;
-        margin-top: 10px;
+        border-radius: 4px;
+        cursor: pointer;
       }
-      pre {
-        background: #f7f7f7;
+      button.primary:hover {
+        background-color: #0056b3;
+      }
+      .result, pre {
+        background: #f8f9fa;
         padding: 15px;
-        border: 1px solid #ddd;
-        overflow-x: auto;
+        border-radius: 4px;
+        margin-top: 10px;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* Dashboard styles */
+      #chartContainer {
+        max-width: 800px;
+        margin: 20px auto;
       }
     </style>
   </head>
   <body>
-    <h1>Interactive Bug & Vulnerability Finder</h1>
-    <p>This tool combines an interactive chat assistant with a vulnerability report generator and a mock static analysis that “finds bugs” for targets like ENS.</p>
-    
-    <div class="container">
-      <h2>Chat Assistant</h2>
-      <div class="chat-container" id="chatContainer"></div>
-      <form id="chatForm">
-        <input type="text" id="chatInput" placeholder="Type your query here..." required />
-        <button type="submit">Send</button>
-      </form>
-    </div>
-    
-    <div class="container">
-      <h2>Analyze Target for Vulnerabilities</h2>
+    <header>
+      <h1>Super Advanced Bug & Vulnerability Finder</h1>
+      <p>Integrated Static Analysis, Dynamic Dashboard, and Detailed Report Generator</p>
+    </header>
+    <nav>
+      <button id="tabAnalysis" class="active">Static Analysis</button>
+      <button id="tabReport">Vulnerability Report</button>
+      <button id="tabDashboard">Dashboard</button>
+    </nav>
+
+    <div class="container" id="analysisSection">
+      <h2>Static Analysis</h2>
       <form id="analysisForm">
-        <label for="targetInput">Target (e.g. ens):</label>
-        <input type="text" id="targetInput" placeholder="Enter target project name" required />
-        <button type="submit">Analyze Vulnerabilities</button>
+        <label for="targetInput">Target Repository / Project (e.g. ens):</label>
+        <input type="text" id="targetInput" placeholder="Enter target name or repository URL" required />
+        <button type="submit" class="primary">Run Analysis</button>
       </form>
-      <div class="analysis-container" id="analysisContainer"></div>
+      <div id="analysisResult" class="result"></div>
     </div>
-    
-    <div class="container">
+
+    <div class="container hidden" id="reportSection">
       <h2>Generate Vulnerability Report</h2>
       <form id="reportForm">
         <label for="assetUrl">Asset URL:</label>
         <input type="text" id="assetUrl" placeholder="https://app.ens.domains" required />
-        
+
         <label for="assetType">Asset Type:</label>
         <select id="assetType">
           <option value="Smart Contract">Smart Contract</option>
-          <option value="Websites and Applications" selected>Websites and Applications</option>
+          <option value="Website/Application" selected>Website/Application</option>
         </select>
-        
+
         <label for="impact">Impact:</label>
         <select id="impact">
-          <option value="Injection of malicious HTML or XSS through metadata">
-            Injection of malicious HTML or XSS through metadata
-          </option>
-          <option value="Direct theft of user funds">Direct theft of user funds</option>
-          <option value="Subdomain takeover with already-connected wallet interaction">
-            Subdomain takeover with already-connected wallet interaction
-          </option>
+          <option value="Reentrancy & Unchecked Calls">Reentrancy & Unchecked Calls</option>
+          <option value="Integer Overflows/Underflows">Integer Overflows/Underflows</option>
+          <option value="Injection Attacks">Injection Attacks</option>
+          <option value="Logic Flaws">Logic Flaws</option>
         </select>
-        
+
         <label for="severity">Severity:</label>
         <select id="severity">
           <option value="High">High</option>
           <option value="Medium">Medium</option>
           <option value="Low">Low</option>
         </select>
-        
-        <label for="references">References (comma separated):</label>
+
+        <label for="references">References (comma separated URLs):</label>
         <input type="text" id="references" placeholder="https://github.com/ensdomains/ens-app-v3, ..." />
-        
+
         <label for="poc">Proof of Concept:</label>
-        <textarea id="poc" rows="4" placeholder="Enter your PoC code or description"></textarea>
-        
-        <button type="submit">Generate Report</button>
+        <textarea id="poc" rows="4" placeholder="Enter PoC details here..."></textarea>
+
+        <button type="submit" class="primary">Generate Report</button>
       </form>
-      
-      <h3>Generated Report</h3>
+      <h3>Generated Vulnerability Report</h3>
       <pre id="reportOutput"></pre>
     </div>
-    
-    <!-- Include your analysis tool integration here, e.g., an o3-mini library -->
-    <script src="https://cdn.example.com/o3-mini.js"></script>
-    <script src="reportGenerator.js"></script>
-    <script>
-      // Chat Assistant functionality
-      const chatContainer = document.getElementById('chatContainer');
-      const chatForm = document.getElementById('chatForm');
-      const chatInput = document.getElementById('chatInput');
-      
-      chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userMsg = chatInput.value.trim();
-        if (!userMsg) return;
-        addChatMessage(userMsg, 'chat-user');
-        chatInput.value = "";
-  
-        // For demonstration, we use a simple response builder. In production, integrate with o3-mini or another API.
-        const assistantMsg = await generateChatResponse(userMsg);
-        addChatMessage(assistantMsg, 'chat-assistant');
-      });
-      
-      function addChatMessage(message, className) {
-        const msgElem = document.createElement('div');
-        msgElem.classList.add('chat-message', className);
-        msgElem.textContent = message;
-        chatContainer.appendChild(msgElem);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-  
-      async function generateChatResponse(message) {
-        // Customized responses based on simple patterns
-        const lowerMsg = message.toLowerCase();
-        if (lowerMsg.includes("ens") && lowerMsg.includes("bug")) {
-          return "Analyzing ENS-related vulnerabilities using our integrated tool. Please check the analysis section!";
-        }
-        return "I'm here to help with bug and vulnerability analysis. Please enter a target for scanning or ask a related query.";
-      }
-  
-      // Vulnerability Analysis functionality
-      const analysisForm = document.getElementById('analysisForm');
-      const analysisContainer = document.getElementById('analysisContainer');
-      
-      analysisForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const target = document.getElementById('targetInput').value.trim();
-        if (!target) return;
-  
-        addAnalysisMessage(`Starting vulnerability analysis for target: ${target}`, 'analysis-message');
-  
-        // Call a simulated vulnerability analysis function.
-        const analysisResult = await analyzeVulnerabilities(target);
-        addAnalysisMessage(analysisResult, 'analysis-message');
-      });
-  
-      function addAnalysisMessage(message, className) {
-        const msgElem = document.createElement('div');
-        msgElem.classList.add('analysis-message', className);
-        msgElem.textContent = message;
-        analysisContainer.appendChild(msgElem);
-        analysisContainer.scrollTop = analysisContainer.scrollHeight;
-      }
-  
-      async function analyzeVulnerabilities(target) {
-        // Simulated analysis; replace with real calls to tools like Slither or Mythril for smart contracts.
-        // For demonstration, if the target includes 'ens', provide a mock result.
-        if (target.toLowerCase().includes("ens")) {
-          return "Found potential issues in ENS: possible reentrancy vulnerability in contract 'ENSRegistry' and unchecked external calls in 'Resolver' contract. Further analysis recommended.";
-        }
-        return `No vulnerabilities detected for ${target}.`;
-      }
-  
-      // Report Generation functionality is contained in reportGenerator.js.
-    </script>
+
+    <div class="container hidden" id="dashboardSection">
+      <h2>Analysis Dashboard</h2>
+      <p>This dashboard simulates advanced dynamic analysis with real-time updates, visual charts, and error logs.</p>
+      <button id="startDashboard" class="primary">Start Real-Time Simulation</button>
+      <div id="dashboardOutput" class="result"></div>
+      <div id="chartContainer">
+        <canvas id="analysisChart"></canvas>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-otri2hqVREBe0sW7eFBgVN/qPLIHPWf54KqISOhQv+cMLLuWWIta2Aq+k5Xf2EGjMDFXs0jtzF+E8LOj3E9BOg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="app.js"></script>
   </body>
 </html>
