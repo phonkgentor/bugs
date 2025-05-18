@@ -4,27 +4,30 @@ import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import { randomInt } from 'crypto';
 
-// Set up Express
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Configure multer for file uploads
+// Configure multer to store uploaded files in the "uploads" directory
 const upload = multer({ dest: 'uploads/' });
 
-// Helper function to get video duration using ffprobe
+// Helper function to get the video duration using ffprobe
 const getVideoDuration = (filePath: string): Promise<number> => {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
       if (err) return reject(err);
-      // Duration in seconds
       const duration = metadata.format.duration;
       resolve(duration);
     });
   });
 };
 
-// Helper function to extract a clip using ffmpeg
-const extractClip = (inputPath: string, outputPath: string, start: number, clipDuration: number): Promise<void> => {
+// Helper function to extract a clip from the video using ffmpeg
+const extractClip = (
+  inputPath: string,
+  outputPath: string,
+  start: number,
+  clipDuration: number
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     ffmpeg(inputPath)
       .setStartTime(start)
@@ -36,42 +39,46 @@ const extractClip = (inputPath: string, outputPath: string, start: number, clipD
   });
 };
 
-// POST endpoint to process the uploaded video
-// Expects 'video' (file) and 'platform' (YouTube or Instagram) fields in the form-data.
+// Serve static files from the "public" directory (e.g., index.html)
+app.use(express.static('public'));
+
+// POST endpoint for file uploads and video editing
 app.post('/upload', upload.single('video'), async (req, res) => {
   try {
-    const platform = req.body.platform; // "youtube" or "instagram"
+    const platform = req.body.platform; // Expected values: "youtube" or "instagram"
     const filePath = req.file.path;
-    
-    // Determine desired clip duration based on platform.
-    const clipDuration = platform === 'youtube' ? 180 : 60; // 180 sec for YouTube, 60 sec for Instagram
-    
-    // Use ffprobe to get total video duration.
+
+    // Set clip duration based on the selected platform:
+    // 180 seconds (3 minutes) for YouTube, 60 seconds (1 minute) for Instagram
+    const clipDuration = platform === 'youtube' ? 180 : 60;
+
+    // Get the total duration of the uploaded video
     const duration = await getVideoDuration(filePath);
-    
-    // Ensure there is enough video to extract clip.
+
+    // Ensure the video is long enough to extract the desired clip
     if (duration <= clipDuration) {
-      return res.status(400).send('Uploaded video is too short for the selected platform editing.');
+      return res
+        .status(400)
+        .send('Uploaded video is too short for the selected platform editing.');
     }
-    
-    // Instead of taking from the beginning, pick a random start time.
-    // Here we avoid the very beginning (e.g., first 30 seconds) as a simple heuristic.
+
+    // Choose a random start time (skipping the very beginning, e.g., first 30 seconds)
     const minStart = 30;
     const maxStart = Math.floor(duration - clipDuration);
-    const startTime = randomInt(minStart, maxStart);
-    
-    // Define output filename.
+    const startTime = maxStart > minStart ? randomInt(minStart, maxStart) : minStart;
+
+    // Define the output filename and path
     const outputFilename = `edited_${Date.now()}.mp4`;
     const outputPath = path.join('uploads', outputFilename);
-    
-    // Extract the clip.
+
+    // Extract the clip from the original video
     await extractClip(filePath, outputPath, startTime, clipDuration);
-    
+
     res.json({
       message: 'Video successfully edited!',
       platform,
-      clipDuration: clipDuration + ' seconds',
-      startTime: startTime + ' seconds',
+      clipDuration: `${clipDuration} seconds`,
+      startTime: `${startTime} seconds`,
       editedVideo: outputFilename
     });
   } catch (error) {
@@ -80,6 +87,12 @@ app.post('/upload', upload.single('video'), async (req, res) => {
   }
 });
 
+// Basic route to confirm the server is running
+app.get('/', (req, res) => {
+  res.send('Welcome to the Anime Episode Auto Editor!');
+});
+
+// Start the server listening on the specified port
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
