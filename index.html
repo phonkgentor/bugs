@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bug & Vulnerability Report Generator</title>
+</head>
+<body>
+  <h1>Bug & Vulnerability Report Generator</h1>
+  <form id="report-form">
+    <label>
+      Asset URL:
+      <input type="text" id="assetUrl" placeholder="Enter asset URL" required>
+    </label><br>
+    <label>
+      Asset Type:
+      <select id="assetType">
+        <option value="Smart Contract">Smart Contract</option>
+        <option value="Websites and Applications" selected>Websites and Applications</option>
+      </select>
+    </label><br>
+    <label>
+      Impact:
+      <select id="impact">
+        <option value="Injection of malicious HTML or XSS through metadata">Injection of malicious HTML or XSS through metadata</option>
+        <option value="Direct theft of user funds">Direct theft of user funds</option>
+        <option value="Subdomain takeover with already-connected wallet interaction">Subdomain takeover with already-connected wallet interaction</option>
+      </select>
+    </label><br>
+    <label>
+      Severity:
+      <select id="severity">
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+    </label><br>
+    <label>
+      References (comma separated):
+      <input type="text" id="references" placeholder="https://example.com,https://github.com/ensdomains">
+    </label><br>
+    <label>
+      Proof of Concept:
+      <textarea id="poc" placeholder="Enter your PoC code" rows="5" cols="50"></textarea>
+    </label><br>
+    <button type="submit">Generate Report</button>
+  </form>
+  <h2>Generated Report</h2>
+  <pre id="report-output"></pre>
+  <script src="reportGenerator.js"></script>
+  <script>
+    document.getElementById('report-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const assetUrl = document.getElementById('assetUrl').value;
+      const assetType = document.getElementById('assetType').value;
+      const impact = document.getElementById('impact').value;
+      const severity = document.getElementById('severity').value;
+      const references = document.getElementById('references').value.split(',')
+                            .map(ref => ref.trim()).filter(ref => ref);
+      const poc = document.getElementById('poc').value;
+
+      const report = generateVulnerabilityReport({
+        assetUrl,
+        assetType,
+        impact,
+        severity,
+        references,
+        poc
+      });
+
+      document.getElementById('report-output').textContent = report;
+    });
+  </script>
+</body>
+</html>
