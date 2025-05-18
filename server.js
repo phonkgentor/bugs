@@ -7,10 +7,13 @@ import { randomInt } from 'crypto';
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configure multer to store uploaded files in the "uploads" directory
+// Configure multer to store uploaded files in the "uploads" directory.
 const upload = multer({ dest: 'uploads/' });
 
-// Helper function to get the video duration using ffprobe
+// Serve static files from the "public" directory.
+app.use(express.static('public'));
+
+// Helper function to get the video duration using ffprobe.
 const getVideoDuration = (filePath) => {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
@@ -21,7 +24,7 @@ const getVideoDuration = (filePath) => {
   });
 };
 
-// Helper function to extract a clip from the video using ffmpeg
+// Helper function to extract a clip using ffmpeg.
 const extractClip = (inputPath, outputPath, start, clipDuration) => {
   return new Promise((resolve, reject) => {
     ffmpeg(inputPath)
@@ -29,44 +32,40 @@ const extractClip = (inputPath, outputPath, start, clipDuration) => {
       .setDuration(clipDuration)
       .output(outputPath)
       .on('end', () => resolve())
-      .on('error', err => reject(err))
+      .on('error', (err) => reject(err))
       .run();
   });
 };
 
-// Serve static files from the "public" directory (e.g., index.html)
-app.use(express.static('public'));
-
-// POST endpoint for file uploads and video editing
+// POST endpoint for video editing.
 app.post('/upload', upload.single('video'), async (req, res) => {
   try {
     const platform = req.body.platform; // Expected values: "youtube" or "instagram"
     const filePath = req.file.path;
 
-    // Set clip duration based on the selected platform:
-    // 180 seconds (3 minutes) for YouTube, 60 seconds (1 minute) for Instagram
+    // Set clip duration based on the selected platform.
     const clipDuration = platform === 'youtube' ? 180 : 60;
 
-    // Get the total duration of the uploaded video
+    // Get the total duration of the uploaded video.
     const duration = await getVideoDuration(filePath);
 
-    // Ensure the video is long enough to extract the desired clip
+    // Ensure the video is long enough.
     if (duration <= clipDuration) {
       return res
         .status(400)
         .send('Uploaded video is too short for the selected platform editing.');
     }
 
-    // Choose a random start time (skipping the very beginning, e.g., first 30 seconds)
+    // Choose a random start time (skipping the very beginning).
     const minStart = 30;
     const maxStart = Math.floor(duration - clipDuration);
     const startTime = maxStart > minStart ? randomInt(minStart, maxStart) : minStart;
 
-    // Define the output filename and path
+    // Define output filename and path.
     const outputFilename = `edited_${Date.now()}.mp4`;
     const outputPath = path.join('uploads', outputFilename);
 
-    // Extract the clip from the original video
+    // Extract the video clip.
     await extractClip(filePath, outputPath, startTime, clipDuration);
 
     res.json({
@@ -82,12 +81,11 @@ app.post('/upload', upload.single('video'), async (req, res) => {
   }
 });
 
-// Basic route to confirm the server is running
-app.get('/', (req, res) => {
-  res.send('Welcome to the Anime Episode Auto Editor!');
-});
+// (Optional) Remove this route if you want index.html to be served automatically.
+// app.get('/', (req, res) => {
+//   res.send('Welcome to the Anime Episode Auto Editor!');
+// });
 
-// Start the server listening on the specified port
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
