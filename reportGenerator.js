@@ -1,59 +1,49 @@
-// reportGenerator.js
-
 /**
- * Generate a title for a vulnerability report.
- * This simple implementation concatenates key details.
- * @param {string} assetType - The category of the asset (e.g., "Smart Contract" or "Websites and Applications")
- * @param {string} impact - The main impact of the bug selected.
- * @returns {string} - The generated title.
+ * Generate a title for the vulnerability report.
+ * @param {string} assetType - The type of asset.
+ * @param {string} impact - The impact.
+ * @returns {string} - The report title.
  */
 function generateTitle(assetType, impact) {
   return `Vulnerability Report - ${assetType} - Impact: ${impact}`;
 }
 
 /**
- * Generate the complete vulnerability report.
- * @param {object} options - The parameters for the report.
- * @param {string} options.assetUrl - The URL or identifier of the asset.
+ * Generate the vulnerability report in Markdown format.
+ * @param {Object} options - Report options.
+ * @param {string} options.assetUrl - The asset URL.
  * @param {string} options.assetType - The type of asset.
  * @param {string} options.impact - The selected impact.
- * @param {string} options.severity - The severity level chosen.
- * @param {string[]} options.references - An array of reference URLs.
- * @param {string} options.poc - The proof of concept code snippet or instructions.
- * @returns {string} - The complete vulnerability report in Markdown format.
+ * @param {string} options.severity - The severity level.
+ * @param {string[]} options.references - Array of reference URLs.
+ * @param {string} options.poc - The proof of concept.
+ * @returns {string} - The vulnerability report in Markdown.
  */
 function generateVulnerabilityReport({ assetUrl, assetType, impact, severity, references, poc }) {
-  // Build the markdown sections
   const title = generateTitle(assetType, impact);
-  const briefIntro = `A vulnerability affecting the ${assetType} at ${assetUrl} has been identified. Exploiting this bug could lead to severe consequences including ${impact.toLowerCase()} effects.`;
+  const briefIntro = `A vulnerability has been identified in the ${assetType} at ${assetUrl}, potentially leading to issues such as ${impact.toLowerCase()}.`;
+  const vulnerabilityDetails = `The vulnerability arises due to inadequate sanitization and validation of input data, which may allow an attacker to exploit the system.`;
+  const impactDetails = `If exploited, this vulnerability could result in significant security breaches, data loss, or service disruption. Severity is marked as ${severity}.`;
+  const referencesSection = references.filter(ref => ref).map(ref => `- ${ref}`).join('\n');
   
-  const vulnerabilityDetails = `The vulnerability occurs due to a flaw in the input validation logic, allowing attackers to manipulate interfaces to trigger unexpected behavior. Issues like unhandled exceptions, improper access controls, or logic bypasses have been observed. Detailed code analysis and testing confirm that the vulnerability exists in a critical area of the application.`;
-  
-  const impactDetails = `If exploited, the bug can result in ${impact.toLowerCase()}. Depending on the severity level (${severity}), potential damages may include unauthorized data access, financial loss, or service disruption.`;
-  
-  const referencesSection = references.map(url => \`- \${url}\`).join("\n");
-  
-  // Construct final report markdown
-  return \`
-# \${title}
+  return `# ${title}
 
 ## Brief/Intro
-\${briefIntro}
+${briefIntro}
 
 ## Vulnerability Details
-\${vulnerabilityDetails}
+${vulnerabilityDetails}
 
 ## Impact Details
-\${impactDetails}
+${impactDetails}
 
 ## References
-\${referencesSection}
+${referencesSection}
 
 ## Proof of Concept
-\${poc}
-
-\`;
+${poc}
+`;
 }
 
-// Expose the function for global usage in the browser
+// Expose the function globally for use in the browser.
 window.generateVulnerabilityReport = generateVulnerabilityReport;
