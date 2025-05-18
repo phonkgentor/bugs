@@ -22,8 +22,8 @@ function generateTitle(assetType, impact) {
 function generateVulnerabilityReport({ assetUrl, assetType, impact, severity, references, poc }) {
   const title = generateTitle(assetType, impact);
   const briefIntro = `A vulnerability has been identified in the ${assetType} at ${assetUrl}, potentially leading to issues such as ${impact.toLowerCase()}.`;
-  const vulnerabilityDetails = `The vulnerability arises due to inadequate sanitization and validation of input data, which may allow an attacker to exploit the system.`;
-  const impactDetails = `If exploited, this vulnerability could result in significant security breaches, data loss, or service disruption. Severity is marked as ${severity}.`;
+  const vulnerabilityDetails = `The vulnerability arises due to inadequate input validation and sanitization, allowing attackers to manipulate the system.`;
+  const impactDetails = `If exploited, this issue may result in significant breaches, data loss, or service disruption. The severity is noted as ${severity}.`;
   const referencesSection = references.filter(ref => ref).map(ref => `- ${ref}`).join('\n');
   
   return `# ${title}
