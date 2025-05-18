@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 const upload = multer({ dest: 'uploads/' });
 
 // Helper function to get the video duration using ffprobe
-const getVideoDuration = (filePath: string): Promise<number> => {
+const getVideoDuration = (filePath) => {
   return new Promise((resolve, reject) => {
     ffmpeg.ffprobe(filePath, (err, metadata) => {
       if (err) return reject(err);
@@ -22,12 +22,7 @@ const getVideoDuration = (filePath: string): Promise<number> => {
 };
 
 // Helper function to extract a clip from the video using ffmpeg
-const extractClip = (
-  inputPath: string,
-  outputPath: string,
-  start: number,
-  clipDuration: number
-): Promise<void> => {
+const extractClip = (inputPath, outputPath, start, clipDuration) => {
   return new Promise((resolve, reject) => {
     ffmpeg(inputPath)
       .setStartTime(start)
